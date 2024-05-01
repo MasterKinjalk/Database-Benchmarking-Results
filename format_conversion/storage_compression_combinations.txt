@@ -1,0 +1,6 @@
+orc_none
+orc_snappy
+orc_zlib
+parquet_gzip
+parquet_none
+parquet_snappy
