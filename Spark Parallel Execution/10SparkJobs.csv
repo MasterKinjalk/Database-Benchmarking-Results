@@ -1,0 +1,12 @@
+Total execution time:,426,,,,
+,,,,,
+Query Type:, aggregated, Index:,0, Execution Time:,238.3684
+Query Type:, aggregated, Index:,1, Execution Time:,306.032
+Query Type:, group_by, Index:,0, Execution Time:,336.0827
+Query Type:, group_by, Index:,1, Execution Time:,283.087
+Query Type:, join, Index:,0, Execution Time:,257.8486
+Query Type:, join, Index:,1, Execution Time:,278.5856
+Query Type:, nested, Index:,0, Execution Time:,319.0964
+Query Type:, nested, Index:,1, Execution Time:,317.113
+Query Type:, set_operation, Index:,0, Execution Time:,282.4233
+Query Type:, set_operation, Index:,1, Execution Time:,315.1875

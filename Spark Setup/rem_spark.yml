@@ -1,0 +1,14 @@
+---
+- name: Remove Spark setup from all hosts
+  hosts: all
+  become: yes  # Ensures you have the necessary permissions
+  tasks:
+    - name: Remove Spark directory
+      ansible.builtin.file:
+        path: /opt/spark
+        state: absent
+
+    - name: Remove Spark environment variables
+      blockinfile:
+        path: "/etc/profile.d/spark.sh"
+        state: absent

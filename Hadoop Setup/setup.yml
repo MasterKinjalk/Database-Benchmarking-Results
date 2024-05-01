@@ -1,0 +1,58 @@
+---
+- name: Install and configure Hadoop on a cluster
+  hosts: hadoop_cluster
+  become: yes
+  vars:
+    java_home: "/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.402.b06-2.el8.x86_64"  # Update the Java home here
+    hadoop_home: "/opt/hadoop-3.3.6"  # Define the Hadoop home here
+
+  tasks:
+    - name: Install Java
+      dnf:
+        name: java-1.8.0-openjdk
+        state: present
+      tags: java
+
+    - name: Set Java home
+      lineinfile:
+        dest: /etc/environment
+        line: JAVA_HOME={{ java_home }}
+        state: present
+      tags: java
+
+    - name: Download Hadoop
+      get_url:
+        url: "https://dlcdn.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz"
+        dest: "/tmp/hadoop-3.3.6.tar.gz"
+      tags: hadoop-download
+
+    - name: Extract Hadoop
+      unarchive:
+        src: "/tmp/hadoop-3.3.6.tar.gz"
+        dest: "{{ hadoop_home }}"
+        creates: "{{ hadoop_home }}" # This ensures the task is idempotent
+        remote_src: yes
+      tags: hadoop-extract
+
+    - name: Set Hadoop environment variables
+      blockinfile:
+        path: "/etc/profile.d/hadoop.sh" # It's better to use a custom file in /etc/profile.d
+        block: |
+          export HADOOP_HOME={{ hadoop_home }}
+          export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
+        create: yes
+        owner: root
+        group: root
+        mode: '0644'
+      tags: environment
+
+    - name: Update Hadoop configuration to use 4GB RAM and 1 CPU
+      copy:
+        dest: "{{ hadoop_home }}/etc/hadoop/{{ item.dest }}"
+        content: "{{ lookup('template', item.src) }}"
+      loop:
+        - { src: 'hdfs-site.xml.j2', dest: 'hdfs-site.xml' }
+        - { src: 'core-site.xml.j2', dest: 'core-site.xml' }
+        - { src: 'mapred-site.xml.j2', dest: 'mapred-site.xml' }
+        - { src: 'yarn-site.xml.j2', dest: 'yarn-site.xml' }
+      tags: hadoop-config

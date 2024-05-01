@@ -1,0 +1,32 @@
+- name: Update JAVA_HOME for all nodes
+  hosts: all
+  become: yes
+  tasks:
+    - name: Ensure JAVA_HOME is not set in /etc/environment
+      ansible.builtin.lineinfile:
+        path: /etc/environment
+        regexp: '^JAVA_HOME='
+        state: absent
+
+    - name: Ensure JAVA_HOME is not set in /etc/profile
+      ansible.builtin.lineinfile:
+        path: /etc/profile
+        regexp: '^export JAVA_HOME='
+        state: absent
+    
+    - name: Find shell scripts in /etc/profile.d
+      ansible.builtin.find:
+        paths: /etc/profile.d
+        patterns: '*.sh'
+      register: shell_scripts
+
+    - name: Remove any JAVA_HOME export from /etc/profile.d/ shell scripts
+      command: "sed -i '/JAVA_HOME/d' {{ item.path }}"
+      loop: "{{ shell_scripts.files }}"
+      when: shell_scripts.matched > 0
+
+    - name: Dynamically set JAVA_HOME in /etc/profile.d/java.sh
+      ansible.builtin.lineinfile:
+        path: "/etc/profile.d/java.sh"
+        line: 'export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))'
+        create: yes
