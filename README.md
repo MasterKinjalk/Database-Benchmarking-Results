@@ -30,3 +30,48 @@ Using relevant queries and datasets follow the following steps to get the benchm
 7. Arrive at the best-performing SQL query engine and associated storage format.
 
 Use the python scripts in the respective folders to run your evaluations. 
+
+
+## Testing Conducted on a Single Query Engine
+
+This walkthrough guides you through our approach to evaluating various queries, compression methods, and table formats using Spark as an example.
+
+### Setting up the Spark Query Engine
+
+Execute the following script to set up the Spark Query Engine:
+
+```bash
+ansible-playbook spark_setup.yml
+```
+
+### Running Queries
+
+Once Spark is successfully set up, you can begin running the codes:
+
+1. **Sequential Task Execution:**  
+   Use `pysparkfordiffthings.py` from the spark folder to execute tasks sequentially.
+
+   ```bash
+   spark-submit pysparkfordiffthings.py --suffix "orc_none"
+   ```
+   You can modify the type of compression and storage format by specifying its name, such as "storage_compression". If you do not specify a suffix, it defaults to "parquet_snappy".
+
+2. **Parallel Load Sharing:**  
+   After obtaining sequential results, we tested the performance under parallel load sharing conditions. For this, we utilized `pysparkParallelexec.py` to run the specified queries of each type.
+
+   We have organized our queries as JSON files for each combiantion of compressiona nd storage format, stored inside `Queries_Jason`. Each JSON is indexed by their query type. This JSON information, along with the query type and index, can be passed through a bash script we created, `run_spark_jobs.sh`. This script executes tasks in parallel and stores the results of each execution as a text file.
+
+    This is a sample code snippet from `testspark.sh`. This snippet utilizes queries from the Real World Trading dataset that we have used for our evaluations.
+
+
+    ```
+    spark-submit pysparkParallelexec.py real_world_queries.json group_by 1 &
+    spark-submit pysparkParallelexec.py real_world_queries.json group_by 2 &
+    spark-submit pysparkParallelexec.py real_world_queries.json group_by 3 &
+    spark-submit pysparkParallelexec.py real_world_queries.json group_by 4 &
+    ```
+
+You can follow similar steps using the Python and bash files inside the Presto, Hive, and Flink folders to reproduce our benchmarking results.
+
+
+
