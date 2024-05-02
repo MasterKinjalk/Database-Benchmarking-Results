@@ -71,6 +71,33 @@ Once Spark is successfully set up, you can begin running the codes:
     spark-submit pysparkParallelexec.py real_world_queries.json group_by 4 &
     ```
 
+    Inside the `run_spark_jobs.sh` you can specify the query type and the number of queries of that type that you want to execute by chnaging the following paramters:
+
+    ```
+    # Declare an associative array where keys are job types and values are the number of jobs
+    declare -A job_types=(
+        [group_by]=3
+        [set_operations]=3
+        [aggregations]=3
+        [joins]=3
+        [nested]=3
+    )    
+    ```
+
+    To run both the bashscripts for execution you can follow the following commands:
+
+    ```
+    chmod +x run_spark_jobs.sh
+    ./run_spark_jobs.sh
+    ```
+
+    or To run `testspark.sh`
+
+    ```
+    chmod +x testspark.sh
+    ./testspark.sh
+    ```
+
 You can follow similar steps using the Python and bash files inside the Presto, Hive, and Flink folders to reproduce our benchmarking results.
 
 
